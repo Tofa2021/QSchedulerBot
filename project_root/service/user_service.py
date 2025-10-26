@@ -9,9 +9,9 @@ async def get_all_users() -> list[User]:
         result = await session.execute(select(User))
         return result.scalars().all()
 
-async def add_user(name: str, is_admin : bool):
+async def add_user(user_id : int, name: str, is_admin : bool):
     async with async_session() as session:
-        new_user = User(name=name, is_admin=is_admin)
+        new_user = User(id=user_id, name=name, is_admin=is_admin)
         session.add(new_user)
         await session.commit()
         return new_user

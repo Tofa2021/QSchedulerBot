@@ -35,3 +35,11 @@ async def get_users_in_queue(queue_id: int) -> list[User]:
         entries = result.scalars().all()
         users = [entry.user for entry in entries if entry.user is not None]
         return users
+
+async def is_enqueued(user_id: int, queue_id: int) -> bool:
+    users = await get_users_in_queue(queue_id)
+    for user in users:
+        if user.id == user_id:
+            return True
+
+    return False

@@ -5,7 +5,7 @@ import os
 from aiogram import Bot, Dispatcher
 from config import BOT_TOKEN
 
-from handlers import main_menu, queues, options
+from handlers import main_menu, queues, options, users
 from project_root.database import init_db
 
 logging.basicConfig(level=logging.INFO)
@@ -15,6 +15,7 @@ dp = Dispatcher()
 dp.include_router(main_menu.router)
 dp.include_router(queues.router)
 dp.include_router(options.router)
+dp.include_router(users.router)
 
 async def main():
     await init_db()

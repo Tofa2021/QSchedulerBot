@@ -25,7 +25,7 @@ async def get_entry_by_id(entry_id: int) -> QueueEntry | None:
         entry = result.scalar_one_or_none()
         return entry
 
-async def get_places_in_queue(queue_id: int) -> list[tuple[int]]:
+async def get_users_places_in_queue(queue_id: int) -> list[tuple[int]]:
     async with async_session() as session:
         result = await session.execute(
             select(QueueEntry.place, QueueEntry.user_id).where(QueueEntry.queue_id == queue_id)
@@ -33,3 +33,8 @@ async def get_places_in_queue(queue_id: int) -> list[tuple[int]]:
         places_and_users = result.all()
         return places_and_users
 
+async def get_places(queue_id: int) -> list[int]:
+    async with async_session() as session:
+        result = await session.execute(select(QueueEntry.place).where(QueueEntry.queue_id == queue_id))
+        places = result.scalars().all()
+        return places
