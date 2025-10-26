@@ -1,0 +1,34 @@
+from aiogram import Router, F
+from aiogram.types import CallbackQuery
+
+from project_root import keyboards
+from project_root.service.queue_entry_service import get_places_in_queue
+from project_root.service.queue_service import get_all_queues, get_queue_by_id, get_users_in_queue
+from project_root.service.user_service import get_user_by_id
+
+router = Router()
+
+@router.callback_query(F.data == "queues")
+async def show_queues(callback_data: CallbackQuery):
+    queues = await get_all_queues()
+    keyboard = keyboards.queues_keyboard(queues)
+    await callback_data.message.edit_text("Очереди:", reply_markup=keyboard)
+
+@router.callback_query(F.data.startswith("queue_"))
+async def show_queue(callback_data: CallbackQuery):
+    queue_id = int(callback_data.data.split("_")[1])
+    queue = await get_queue_by_id(queue_id)
+    description = await make_description(queue)
+    keyboard = keyboards.queue_keyboard()
+    await callback_data.message.edit_text(text=description, reply_markup=keyboard)
+
+async def make_description(queue) -> str:
+    places_users = await get_places_in_queue(queue.id)
+    description = f"{queue.name}\n"
+    for place_user in places_users:
+        place = place_user[0]
+        user_id = int(place_user[1])
+        user = await get_user_by_id(user_id)
+        description += f"{place}) {user.name}\n"
+
+    return description
