@@ -1,7 +1,7 @@
 from datetime import datetime
 from tkinter import Place
 
-from sqlalchemy import select
+from sqlalchemy import select, result_tuple
 
 from project_root.database import async_session
 from project_root.model.queue_entry import QueueEntry
@@ -18,6 +18,13 @@ async def add_entry(user_id : int, queue_id : int, place : int, timestamp : date
         session.add(new_entry)
         await session.commit()
         return new_entry
+
+async def remove_entry(user_id : int, queue_id : int):
+    async with async_session() as session:
+        result = await session.execute(select(QueueEntry).where(QueueEntry.user_id == user_id and QueueEntry.queue_id == queue_id))
+        entry = result.scalar_one_or_none()
+        await session.delete(entry)
+        await session.commit()
 
 async def get_entry_by_id(entry_id: int) -> QueueEntry | None:
     async with async_session() as session:
